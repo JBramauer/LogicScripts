@@ -22,8 +22,8 @@
 */
 
 var PluginParameters = [
-	{name:"Delay (ms)", type:"linear", minValue:0, maxValue:10000,
-    defaultValue:500, numberOfSteps:100}
+	{name:"Delay", type:"linear", minValue:0, maxValue:10000,
+    defaultValue:500, numberOfSteps:100, unit:'ms'}
 ];
 
 function HandleMIDI(event)
@@ -35,7 +35,7 @@ function HandleMIDI(event)
 		var offEvent = new NoteOff;
 		offEvent.channel = event.channel;
 		offEvent.pitch = event.pitch;
-		offEvent.sendAfterMilliseconds(GetParameter('Delay (ms)'));
+		offEvent.sendAfterMilliseconds(GetParameter('Delay'));
 	}
 }
 
