@@ -1,5 +1,8 @@
 /*
-	This script cuts Notes after a 
+	This script cuts Notes after a certain amount of time
+	Also if you check the "Keep Notes" option it will hold every note
+	for said amount of time, useful for e.g. glissando effects
+	
 	Author & Copyright: Johannes Bramauer 2018
 	License: MIT
 	
@@ -22,12 +25,18 @@
 */
 
 var PluginParameters = [
-	{name:"Delay", type:"linear", minValue:0, maxValue:10000,
-    defaultValue:500, numberOfSteps:100, unit:'ms'}
+	{name:"Note Length", type:"linear", minValue:0, maxValue:10000,
+    defaultValue:500, numberOfSteps:100, unit:'ms'},
+    {name:"Keep notes", type:'checkbox', defaultValue:0}
 ];
 
 function HandleMIDI(event)
 {
+	
+	if(event instanceof NoteOff && GetParameter('Keep notes')==1){
+		return;
+	}
+	
 	event.trace();
 	event.send();
 	
@@ -35,7 +44,7 @@ function HandleMIDI(event)
 		var offEvent = new NoteOff;
 		offEvent.channel = event.channel;
 		offEvent.pitch = event.pitch;
-		offEvent.sendAfterMilliseconds(GetParameter('Delay'));
+		offEvent.sendAfterMilliseconds(GetParameter('Note Length'));
 	}
 }
 
