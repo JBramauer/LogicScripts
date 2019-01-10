@@ -1,7 +1,7 @@
 /*
-	This script filters all NoteOn events unless a specific ControlChange is enabled ( >=64 ).
-	This allows you to keep layered instruments from using CPU power if their volume is zero
-	without actually disabling the plugin (avoids any changes in CPU/memory and the instrument is
+	This script filters all NoteOn events unless a specific ControlChange is enabled
+	This allows you to keep layered instruments from using CPU power if their volume is off
+	without actually disabling them (avoids any changes in CPU/memory and the instrument is
 	instantly available when you want to enable it again)
 	
 	Author & Copyright: Johannes Bramauer 2019
@@ -26,23 +26,28 @@
 */
 
 var PluginParameters =[
-	{name:'CC Number', type:'linear', minValue:1, maxValue: 127, defaultValue: 64, numberOfSteps:126},
+	{name:'CC Number', type:'linear', minValue:1, maxValue: 127, defaultValue: 16, numberOfSteps:126},
+	{name:'Switch point', type:'linear', minValue:1, maxValue: 127, defaultValue: 64, numberOfSteps:126},
 	{name:'Passthrough CC', type:'checkbox'},
 ];
 
 var sendNoteOn = true
 var ccNumber = 64
 var passThroughCC = false
+var switchPoint = 64
 
 function HandleMIDI(event)
 {
 	if(event instanceof ControlChange){
 		if(event.number == ccNumber){
-			sendNoteOn = event.value >= 64
+			sendNoteOn = event.value >= switchPoint
 			
 			if(passThroughCC){
-				event.send()
+				event.send();
 			}
+		}
+		else {
+			event.send();
 		}
 	}
 	else if(event instanceof NoteOn){
@@ -65,6 +70,9 @@ function ParameterChanged(index, value){
 		sendNoteOn = true;
 	}
 	else if(index == 1){
+		switchPoint = value;
+	}
+	else if(index == 2){
 		passThroughCC = value;
 	}
 }
