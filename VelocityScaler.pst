@@ -1,0 +1,45 @@
+/*
+	This script scales NoteOn velocity linearly within set min and max boundaries
+	Author & Copyright: Johannes Bramauer 2020
+	License: MIT
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"),
+	to deal in the Software without restriction, including without limitation
+	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+	and/or sell copies of the Software, and to permit persons to whom the Software
+	is furnished to do so, subject to the following conditions:
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+*/
+
+var minVelocity = 0;
+var maxVelocity = 127;                                                                                                                      
+
+var PluginParameters = [
+	{name:'Min Velocity', type:'lin', unit:'',minValue:0, maxValue:127, defaultValue:0, numberOfSteps:127},
+	{name:'Max Velocity', type:'lin', unit:'',minValue:0, maxValue:127, defaultValue:127, numberOfSteps:127}
+]
+
+function HandleMIDI(event)
+{
+	if(event instanceof NoteOn){
+		event.velocity = minVelocity + event.velocity/127 * (maxVelocity-minVelocity)
+		event.trace();
+	}
+	event.send();
+}
+
+function ParameterChanged(param, value)
+{                                                                                                                                                                    
+	if (param == 0) minVelocity = value;
+	else if (param == 1) maxVelocity = value;
+}
