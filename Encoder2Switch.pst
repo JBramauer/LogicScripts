@@ -1,0 +1,100 @@
+var PluginParameters =[
+	{name:'Learn', type:'checkbox', defaultValue: false},
+	{name:'CC in', type:'slider', minValue: 1, maxValue: 127, defaultValue: 17, numberOfSteps: 126},
+	{name:'CC out 1', type:'slider', minValue: 1, maxValue: 127, defaultValue: 126, numberOfSteps: 126},
+	{name:'CC out 2', type:'slider', minValue: 1, maxValue: 127, defaultValue: 127, numberOfSteps: 126},
+	{name:'Enable Thru', type:'checkbox', defaultValue: false},
+];
+
+var numberIn = 17
+var numberOut1 = 127
+var numberOut2 = 126
+
+var currentValue1 = -1
+var currentValue2 = -1
+
+var enableThru = false
+var learnMode = false
+
+
+
+function HandleMIDI(event)
+{
+	if(event instanceof ControlChange){
+		if(learnMode){
+			if(numberIn != event.number){
+				Trace("new in CC: " + event.number)
+				numberIn = event.number
+				PluginParameters[1].currentValue = numberIn
+			}
+			
+		}
+		else if(event.number == numberIn){
+			var value1 = 0
+			var value2 = 0
+			
+			if(event.value <42){
+				value1 = 127
+				value2 = 0
+			}
+			else if(event.value <84){
+				value1 = 127
+				value2 = 127
+			}
+			else {
+				value1 = 0
+				value2 = 127
+			}
+			
+			if(value1 != currentValue1){
+				currentValue1 = value1
+				var event1 = new ControlChange(event)
+				event1.number = numberOut1
+				event1.value = value1
+				event1.trace()
+				event1.send()
+			}
+			
+			
+			if(value2 != currentValue2){
+				currentValue2 = value2
+				var event2 = new ControlChange(event)
+				event2.number = numberOut2
+				event2.value = value2
+				event2.trace()
+				event2.send()
+			}
+			
+			if(enableThru){
+				event.send()
+			}
+		}
+		else {
+			event.send()
+		}
+
+	}
+	else {
+		event.send();
+	}
+}
+
+function ParameterChanged(index, value){
+	Trace('Parameter changed: ' + index + ', ' + value);
+	if(index == 0){
+		learnMode = value
+	}
+
+	if(index == 1){
+		numberIn = value
+	}
+	else if(index == 2){
+		numberOut1 = value
+	}
+	else if(index == 3){
+		numberOut2 = value
+	}
+	else if(index == 4){
+		enableThru = value
+	}
+}
